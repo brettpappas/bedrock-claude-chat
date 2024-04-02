@@ -75,7 +75,7 @@ const Menu: React.FC<Props> = (props) => {
         <div
           ref={menuRef}
           className="absolute bottom-10 left-2 w-60 rounded border border-aws-font-color-white bg-aws-sea-blue text-aws-font-color-white">
-          <div
+          {/* <div
             className="flex w-full cursor-pointer items-center p-2 hover:bg-aws-sea-blue-hover"
             onClick={() => {
               setIsOpen(false);
@@ -83,7 +83,7 @@ const Menu: React.FC<Props> = (props) => {
             }}>
             <PiTranslate className="mr-2" />
             {t('button.language')}
-          </div>
+          </div> */}
           <div
             className="flex w-full cursor-pointer items-center p-2 hover:bg-aws-sea-blue-hover"
             onClick={() => {
