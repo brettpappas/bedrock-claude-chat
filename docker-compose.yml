@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 services:
   ui:
     build:
@@ -8,12 +8,12 @@ services:
       - 5173:5173
     environment:
       VITE_APP_API_ENDPOINT: http://localhost:8000
-      VITE_APP_USER_POOL_ID: us-east-1_XXXXXXXXX
-      VITE_APP_USER_POOL_CLIENT_ID: replace_with_your_client_id
+      VITE_APP_USER_POOL_ID: us-east-1_TZAGVann1
+      VITE_APP_USER_POOL_CLIENT_ID: 2oha3sck1rr18t163hhqprqc7e
       VITE_APP_REGION: us-east-1
-      VITE_APP_USE_STREAMING: false # ローカル開発時は websocket を利用しない
+      VITE_APP_USE_STREAMING: true # ローカル開発時は websocket を利用しない
     volumes:
-      - "./frontend/src:/app/src"
+      - './frontend/src:/app/src'
 
   api:
     build:
@@ -30,14 +30,14 @@ services:
       #AWS_ACCESS_KEY_ID: XXXX
       #AWS_SECRET_ACCESS_KEY: XXXX
     volumes:
-      - "~/.aws:/root/.aws" # ローカルのクレデンシャルの利用に必要
-      - "./backend/app:/backend/app"
+      - '~/.aws:/root/.aws' # ローカルのクレデンシャルの利用に必要
+      - './backend/app:/backend/app'
     depends_on:
       - dynamodb-local
 
   dynamodb-local:
     image: public.ecr.aws/aws-dynamodb-local/aws-dynamodb-local:1.22.0
-    command: "-jar DynamoDBLocal.jar -port 8080"
+    command: '-jar DynamoDBLocal.jar -port 8080'
     ports:
       - 8080:8080
 

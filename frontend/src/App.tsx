@@ -63,9 +63,10 @@ const App: React.FC = () => {
   return (
     <Authenticator
       socialProviders={socialProviderFromEnv}
+      hideSignUp={true}
       components={{
         Header: () => (
-          <div className="mb-5 mt-10 flex justify-center text-3xl text-aws-font-color">
+          <div className="mb-5 mt-10 flex justify-center text-3xl text-aws-font-color font-thin">
             {t('app.name')}
           </div>
         ),

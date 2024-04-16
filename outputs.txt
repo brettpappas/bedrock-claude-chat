@@ -1,0 +1,38 @@
+Outputs:
+FrontendWafStack.ExportsOutputFnGetAttWebAclArnEF1FFB35 = arn:aws:wafv2:us-east-1:732550788067:global/webacl/FrontendWebAcl/c40310aa-b28e-4b0c-a092-a6ac9cce4721
+FrontendWafStack.WebAclId = arn:aws:wafv2:us-east-1:732550788067:global/webacl/FrontendWebAcl/c40310aa-b28e-4b0c-a092-a6ac9cce4721
+Stack ARN:
+arn:aws:cloudformation:us-east-1:732550788067:stack/FrontendWafStack/601d2950-f122-11ee-9bd4-12ea402e0871
+
+
+ ✅  BedrockChatStack
+
+✨  Deployment time: 708.02s
+
+Outputs:
+BedrockChatStack.AuthUserPoolClientId8216BF9A = 5e97uj8rfj6j776sr6o4it6dld
+BedrockChatStack.AuthUserPoolIdC0605E59 = us-east-1_DbX85KOH4
+BedrockChatStack.AvailabilityZone0 = us-east-1a
+BedrockChatStack.AvailabilityZone1 = us-east-1b
+BedrockChatStack.BackendApiBackendApiUrl4A0A7879 = https://m231dz9a19.execute-api.us-east-1.amazonaws.com
+BedrockChatStack.ConversationTableName = BedrockChatStack-DatabaseConversationTable03F3FD7A-1IGPLIOVUNNIX
+BedrockChatStack.DbConfigHostname = bedrockchatstack-vectorstoreclusterefe7d2f8-g46fbidjsbib.cluster-chpy10dcgrze.us-east-1.rds.amazonaws.com
+BedrockChatStack.DbConfigPort = 5432
+BedrockChatStack.DbConfigSecretArn = arn:aws:secretsmanager:us-east-1:732550788067:secret:VectorStoreClusterSecretC38-zrSA1DJZ136g-PpwKfa
+BedrockChatStack.DbSecurityGroupId = sg-07136c3c2a461966b
+BedrockChatStack.DocumentBucketName = bedrockchatstack-documentbucketae41e5a9-ekn274n60ig8
+BedrockChatStack.FrontendURL = https://d3lq4c40km3iu1.cloudfront.net
+BedrockChatStack.LargeMessageBucketName = bedrockchatstack-largemessagebucketad0c9b6b-vzlkvfkbqvva
+BedrockChatStack.PrivateSubnetId0 = subnet-0a600048a3097f413
+BedrockChatStack.PrivateSubnetId1 = subnet-03168c5ac1cea3a70
+BedrockChatStack.PublicSubnetId0 = subnet-0ce5552e76a12a149
+BedrockChatStack.PublicSubnetId1 = subnet-021f4759c0951b2bc
+BedrockChatStack.PublishedApiWebAclArn = arn:aws:wafv2:us-east-1:732550788067:regional/webacl/ApiWebAcl-WebAclForPublishedApi/421c6381-777d-4128-8c22-b4a94fff7dab
+BedrockChatStack.TableAccessRoleArn = arn:aws:iam::732550788067:role/BedrockChatStack-DatabaseTableAccessRole59AAC05E-pf110qwsiDAi
+BedrockChatStack.UsageAnalysisUsageAnalysisOutputLocation52B0D96C = s3://bedrockchatstack-usageanalysisqueryresultbucketef0-zx7fgq0rbkie
+BedrockChatStack.UsageAnalysisUsageAnalysisWorkgroup5D908EDF = bedrockchatstack_wg
+BedrockChatStack.VpcId = vpc-09020d3a8433e2ad0
+BedrockChatStack.WebAclForPublishedApiWebAclArn2C0995DA = arn:aws:wafv2:us-east-1:732550788067:regional/webacl/ApiWebAcl-WebAclForPublishedApi/421c6381-777d-4128-8c22-b4a94fff7dab
+BedrockChatStack.WebSocketWebSocketEndpointF298FA8F = wss://nyv2arfze4.execute-api.us-east-1.amazonaws.com/dev
+Stack ARN:
+arn:aws:cloudformation:us-east-1:732550788067:stack/BedrockChatStack/711c0d70-f122-11ee-a5c1-0affe531142f

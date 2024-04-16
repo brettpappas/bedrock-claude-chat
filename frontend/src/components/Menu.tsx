@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Button from './Button';
-import { PiList, PiSignOut, PiTranslate, PiTrash } from 'react-icons/pi';
+import { PiList, PiSignOut, PiTrash } from 'react-icons/pi';
 import { useTranslation } from 'react-i18next';
 import DialogSelectLanguage from './DialogSelectLanguage';
 import { BaseProps } from '../@types/common';
