@@ -3,7 +3,7 @@ import logging
 import os
 
 from anthropic import AnthropicBedrock
-from app.config import ANTHROPIC_PRICING, EMBEDDING_CONFIG, GENERATION_CONFIG
+from app.config import ANTHROPIC_PRICING, DEFAULT_EMBEDDING_CONFIG, GENERATION_CONFIG
 from app.repositories.models.conversation import MessageModel
 from app.utils import get_bedrock_client
 
@@ -89,12 +89,14 @@ def get_model_id(model: str) -> str:
         return "anthropic.claude-3-sonnet-20240229-v1:0"
     elif model == "claude-v3-haiku":
         return "anthropic.claude-3-haiku-20240307-v1:0"
+    elif model == "claude-v3-opus":
+        return "anthropic.claude-3-opus-20240229-v1:0"
     else:
         raise NotImplementedError()
 
 
 def calculate_query_embedding(question: str) -> list[float]:
-    model_id = EMBEDDING_CONFIG["model_id"]
+    model_id = DEFAULT_EMBEDDING_CONFIG["model_id"]
 
     # Currently only supports "cohere.embed-multilingual-v3"
     assert model_id == "cohere.embed-multilingual-v3"
@@ -127,7 +129,7 @@ def calculate_document_embeddings(documents: list[str]) -> list[list[float]]:
         return embeddings
 
     BATCH_SIZE = 10
-    model_id = EMBEDDING_CONFIG["model_id"]
+    model_id = DEFAULT_EMBEDDING_CONFIG["model_id"]
 
     # Currently only supports "cohere.embed-multilingual-v3"
     assert model_id == "cohere.embed-multilingual-v3"
