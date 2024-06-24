@@ -35,7 +35,8 @@ export class Auth extends Construct {
         minLength: 8,
       },
       // Disable if identity providers are configured
-      selfSignUpEnabled: !props.idp.isExist(),
+      // selfSignUpEnabled: !props.idp.isExist(),
+      selfSignUpEnabled: false,
       signInAliases: {
         username: false,
         email: true,
@@ -119,7 +120,7 @@ export class Auth extends Construct {
               attributeMapping: {
                 // This is an example of mapping the email attribute.
                 // Replace this with the actual idp attribute key.
-                email: ProviderAttribute.other("EMAIL"),
+                email: ProviderAttribute.other("email"),
               },
               scopes: ["openid", "email"],
             }

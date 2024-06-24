@@ -15,6 +15,7 @@ const AuthAmplify: React.FC<Props> = ({ socialProviders, children }) => {
   const { signOut } = useAuthenticator();
   return (
     <Authenticator
+      hideSignUp={true}
       socialProviders={socialProviders}
       components={{
         Header: () => (

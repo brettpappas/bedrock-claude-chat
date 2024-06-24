@@ -46,7 +46,8 @@ const waf = new FrontendWafStack(app, `FrontendWafStack`, {
 const chat = new BedrockChatStack(app, `BedrockChatStack`, {
   env: {
     // account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION,
+    // region: process.env.CDK_DEFAULT_REGION,
+    region: "us-east-1",
   },
   crossRegionReferences: true,
   bedrockRegion: BEDROCK_REGION,
@@ -57,7 +58,7 @@ const chat = new BedrockChatStack(app, `BedrockChatStack`, {
     PUBLISHED_API_ALLOWED_IP_V4_ADDRESS_RANGES,
   publishedApiAllowedIpV6AddressRanges:
     PUBLISHED_API_ALLOWED_IP_V6_ADDRESS_RANGES,
-  allowedSignUpEmailDomains: 
+  allowedSignUpEmailDomains:
     ALLOWED_SIGN_UP_EMAIL_DOMAINS,
   rdsSchedules: RDS_SCHEDULES,
 });
