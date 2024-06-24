@@ -7,6 +7,7 @@ const translation = {
     },
     app: {
       name: 'Engine Room',
+      nameWithoutClaude: 'Bedrock Chat',
       inputMessage: 'Send a message',
       starredBots: 'Starred Bots',
       recentlyUsedBots: 'Recently Used Bots',
@@ -46,6 +47,7 @@ const translation = {
           uploaded: 'Uploaded',
           error: 'ERROR',
         },
+        citeRetrievedContexts: 'Retrieved Context Citation',
       },
       titleSubmenu: {
         edit: 'Edit',
@@ -64,6 +66,8 @@ const translation = {
           sitemap:
             'By specifying the URL of the sitemap, the information obtained through automatically scraping websites within it will be used as Knowledge.',
           file: 'The uploaded files will be used as Knowledge.',
+          citeRetrievedContexts:
+            'Configure whether to display context retrieved to answer user queries as citation information.\nIf enabled, users can access the original source URLs or files.',
         },
       },
       alert: {
@@ -312,6 +316,27 @@ How would you categorize this email?`,
     languageDialog: {
       title: 'Switch language',
     },
+    feedbackDialog: {
+      title: 'Feedback',
+      content: 'Please provide more details.',
+      categoryLabel: 'Category',
+      commentLabel: 'Comment',
+      commentPlaceholder: '(Optional) Enter your comment',
+      categories: [
+        {
+          value: 'notFactuallyCorrect',
+          label: 'Not factually correct',
+        },
+        {
+          value: 'notFullyFollowRequest',
+          label: 'Not fully following my request',
+        },
+        {
+          value: 'other',
+          label: 'Other',
+        },
+      ],
+    },
     button: {
       newChat: 'New Chat',
       botConsole: 'Bot Console',
@@ -355,6 +380,10 @@ How would you categorize this email?`,
         label: 'chunk overlap',
         hint: 'You can specify the number of overlapping characters between adjacent chunks.',
       },
+      enablePartitionPdf: {
+        label: 'Enable detailed PDF analysis. If enabled, the PDF will be analyzed in detail over time.',
+        hint: 'It is effective when you want to improve search accuracy. Computation costs increase because computation takes more time.',
+      },
       help: {
         chunkSize:
           "When the chunk size is too small, contextual information can be lost, and when it's too large, different contextual information may exist within the same chunk, potentially reducing search accuracy.",
@@ -369,6 +398,41 @@ How would you categorize this email?`,
           },
         },
       },
+    },
+    generationConfig: {
+      title: 'Generation Config',
+      description: ' You can configure LLM inference parameters to control the response from the models.',
+      maxTokens: {
+        label: 'Maximum generation length/maximum new tokens',
+        hint: 'The maximum number of tokens allowed in the generated response',
+      },
+      temperature: {
+        label: 'Temperature',
+        hint: 'Affects the shape of the probability distribution for the predicted output and influences the likelihood of the model selecting lower-probability outputs',
+        help: 'Choose a lower value to influence the model to select higher-probability outputs; Choose a higher value to influence the model to select lower-probability outputs',
+      },
+      topK: {
+        label: 'Top-k',
+        hint: 'The number of most-likely candidates that the model considers for the next token',
+        help: 'Choose a lower value to decrease the size of the pool and limit the options to more likely outputs; Choose a higher value to increase the size of the pool and allow the model to consider less likely outputs',
+      },
+      topP: {
+        label: 'Top-p',
+        hint: 'The percentage of most-likely candidates that the model considers for the next token',
+        help: 'Choose a lower value to decrease the size of the pool and limit the options to more likely outputs; Choose a higher value to increase the size of the pool and allow the model to consider less likely outputs',
+      },
+      stopSequences: {
+        label: 'End token/end sequence',
+        hint: 'Specify sequences of characters that stop the model from generating further tokens. Use commas to separate multiple words',
+      }
+    },
+    searchSettings: {
+      title: 'Search Settings',
+      description: 'You can configure search parameters to fetch relevant documents from vector store.',
+      maxResults: {
+        label: 'Max Results',
+        hint: 'The maximum number of records fetched from vector store',
+      }
     },
     error: {
       answerResponse: 'An error occurred while responding.',
@@ -387,9 +451,13 @@ How would you categorize this email?`,
       maxRange: {
         message: 'The maximum value that can be set is {{size}}',
       },
+      minRange: {
+        message: 'The minimum value that can be set is {{size}}',
+      },
       chunkOverlapLessThanChunkSize: {
         message: 'Chunk overlap must be set to less than Chunk size',
       },
+
     },
   },
 };

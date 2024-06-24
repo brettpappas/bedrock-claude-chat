@@ -19,9 +19,10 @@ export type BotKnowledge = {
   filenames: string[];
 };
 
-export type EmdeddingPrams = {
+export type EmdeddingParams = {
   chunkSize: number;
   chunkOverlap: number;
+  enablePartitionPdf: boolean;
 };
 
 export type BotKnowledgeDiff = {
@@ -39,11 +40,26 @@ export type BotListItem = BotMeta & {
   available: boolean;
 };
 
+export type GenerationParams = {
+  maxTokens: number;
+  topK: number;
+  topP: number;
+  temperature: number;
+  stopSequences: string[];
+}
+
+export type SearchParams = {
+  maxResults: number;
+}
+
 export type BotDetails = BotMeta & {
   instruction: string;
-  embeddingParams: EmdeddingPrams;
+  embeddingParams: EmdeddingParams;
+  generationParams: GenerationParams;
+  searchParams: SearchParams;
   knowledge: BotKnowledge;
   syncStatusReason: string;
+  displayRetrievedChunks: boolean;
 };
 
 export type BotSummary = BotMeta & {
@@ -62,8 +78,11 @@ export type RegisterBotRequest = {
   title: string;
   instruction: string;
   description?: string;
-  embeddingParams?: EmdeddingPrams;
+  embeddingParams?: EmdeddingParams;
+  generationParams?: GenerationParams;
+  searchParams?: SearchParams;
   knowledge?: BotKnowledge;
+  displayRetrievedChunks: boolean;
 };
 
 export type RegisterBotResponse = BotDetails;
@@ -72,8 +91,11 @@ export type UpdateBotRequest = {
   title: string;
   instruction: string;
   description?: string;
-  embeddingParams?: EmdeddingPrams;
+  embeddingParams?: EmdeddingParams;
+  generationParams?: BotGenerationConfig;
+  searchParams?: SearchParams;
   knowledge?: BotKnowledgeDiff;
+  displayRetrievedChunks: boolean;
 };
 
 export type UpdateBotResponse = {
@@ -81,8 +103,11 @@ export type UpdateBotResponse = {
   title: string;
   instruction: string;
   description: string;
-  embeddingParams?: EmdeddingPrams;
+  embeddingParams: EmdeddingParams;
+  generationParams: GenerationParams;
+  searchParams: SearchParams;
   knowledge?: BotKnowledge;
+  displayRetrievedChunks: boolean;
 };
 
 export type UpdateBotPinnedRequest = {

@@ -3,12 +3,16 @@ from app.repositories.conversation import (
     delete_conversation_by_id,
     delete_conversation_by_user_id,
     find_conversation_by_user_id,
+    update_feedback,
 )
+from app.repositories.models.conversation import FeedbackModel
 from app.routes.schemas.conversation import (
     ChatInput,
     ChatOutput,
     Conversation,
     ConversationMetaOutput,
+    FeedbackInput,
+    FeedbackOutput,
     NewTitleInput,
     ProposedTitle,
     RelatedDocumentsOutput,
@@ -41,11 +45,15 @@ def post_message(request: Request, chat_input: ChatInput):
 
 
 @router.post(
-    "/conversation/related-documents", response_model=list[RelatedDocumentsOutput]
+    "/conversation/related-documents",
+    response_model=list[RelatedDocumentsOutput] | None,
 )
-def get_related_documents(request: Request, chat_input: ChatInput):
+def get_related_documents(
+    request: Request, chat_input: ChatInput
+) -> list[RelatedDocumentsOutput] | None:
     """Get related documents
-    NOTE: POST method is used to avoid query string length limit
+    NOTE: POST method is used to avoid query string length limit.
+    If the bot prohibits displaying related documents, it will return `None`.
     """
     current_user: User = request.state.current_user
     output = fetch_related_documents(user_id=current_user.id, chat_input=chat_input)
@@ -119,3 +127,33 @@ def get_proposed_title(request: Request, conversation_id: str):
 
     title = propose_conversation_title(current_user.id, conversation_id)
     return ProposedTitle(title=title)
+
+
+@router.put(
+    "/conversation/{conversation_id}/{message_id}/feedback",
+    response_model=FeedbackOutput,
+)
+def put_feedback(
+    request: Request,
+    conversation_id: str,
+    message_id: str,
+    feedback_input: FeedbackInput,
+):
+    """Send feedback."""
+    current_user: User = request.state.current_user
+
+    update_feedback(
+        user_id=current_user.id,
+        conversation_id=conversation_id,
+        message_id=message_id,
+        feedback=FeedbackModel(
+            thumbs_up=feedback_input.thumbs_up,
+            category=feedback_input.category if feedback_input.category else "",
+            comment=feedback_input.comment if feedback_input.comment else "",
+        ),
+    )
+    return FeedbackOutput(
+        thumbs_up=feedback_input.thumbs_up,
+        category=feedback_input.category if feedback_input.category else "",
+        comment=feedback_input.comment if feedback_input.comment else "",
+    )

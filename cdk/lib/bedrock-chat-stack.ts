@@ -32,6 +32,10 @@ export interface BedrockChatStackProps extends StackProps {
   readonly publishedApiAllowedIpV6AddressRanges: string[];
   readonly allowedSignUpEmailDomains: string[];
   readonly rdsSchedules: CronScheduleProps;
+  readonly enableMistral: boolean;
+  readonly embeddingContainerVcpu: number;
+  readonly embeddingContainerMemory: number;
+  readonly selfSignUpEnabled: boolean;
 }
 
 export class BedrockChatStack extends cdk.Stack {
@@ -93,6 +97,7 @@ export class BedrockChatStack extends cdk.Stack {
     const frontend = new Frontend(this, "Frontend", {
       accessLogBucket,
       webAclId: props.webAclId,
+      enableMistral: props.enableMistral,
     });
 
     const auth = new Auth(this, "Auth", {
@@ -100,6 +105,7 @@ export class BedrockChatStack extends cdk.Stack {
       userPoolDomainPrefixKey: props.userPoolDomainPrefix,
       idp,
       allowedSignUpEmailDomains: props.allowedSignUpEmailDomains,
+      selfSignUpEnabled: props.selfSignUpEnabled,
     });
     const largeMessageBucket = new Bucket(this, "LargeMessageBucket", {
       encryption: BucketEncryption.S3_MANAGED,
@@ -130,6 +136,7 @@ export class BedrockChatStack extends cdk.Stack {
       apiPublishProject: apiPublishCodebuild.project,
       usageAnalysis,
       largeMessageBucket,
+      enableMistral: props.enableMistral,
     });
     documentBucket.grantReadWrite(backendApi.handler);
 
@@ -144,18 +151,18 @@ export class BedrockChatStack extends cdk.Stack {
       bedrockRegion: props.bedrockRegion,
       largeMessageBucket,
     });
-
     frontend.buildViteApp({
       backendApiEndpoint: backendApi.api.apiEndpoint,
       webSocketApiEndpoint: websocket.apiEndpoint,
       userPoolDomainPrefix: props.userPoolDomainPrefix,
+      enableMistral: props.enableMistral,
       auth,
       idp,
     });
 
     documentBucket.addCorsRule({
       allowedMethods: [HttpMethods.PUT],
-      allowedOrigins: [frontend.getOrigin(), "http://localhost:5173"],
+      allowedOrigins: [frontend.getOrigin(), "http://localhost:5173", "*"],
       allowedHeaders: ["*"],
       maxAge: 3000,
     });
@@ -167,6 +174,8 @@ export class BedrockChatStack extends cdk.Stack {
       dbConfig,
       tableAccessRole: database.tableAccessRole,
       documentBucket,
+      embeddingContainerVcpu: props.embeddingContainerVcpu,
+      embeddingContainerMemory: props.embeddingContainerMemory,
     });
     documentBucket.grantRead(embedding.container.taskDefinition.taskRole);
 

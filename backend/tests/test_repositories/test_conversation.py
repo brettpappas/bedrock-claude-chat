@@ -1,35 +1,34 @@
 import sys
 import unittest
 
-
 sys.path.append(".")
 
 from app.config import DEFAULT_EMBEDDING_CONFIG
-
 from app.repositories.conversation import (
     ContentModel,
     ConversationModel,
     MessageModel,
     RecordNotFoundError,
-    _get_table_client,
     change_conversation_title,
-    compose_conv_id,
     delete_conversation_by_id,
     delete_conversation_by_user_id,
     find_conversation_by_id,
     find_conversation_by_user_id,
     store_conversation,
+    update_feedback,
 )
 from app.repositories.custom_bot import (
     delete_bot_by_id,
-    find_private_bot_by_id,
     find_private_bots_by_user_id,
     store_bot,
 )
+from app.repositories.models.conversation import FeedbackModel
 from app.repositories.models.custom_bot import (
     BotModel,
     EmbeddingParamsModel,
     KnowledgeModel,
+    GenerationParamsModel,
+    SearchParamsModel,
 )
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
@@ -138,6 +137,8 @@ class TestConversationRepository(unittest.TestCase):
                     children=["x", "y"],
                     parent="z",
                     create_time=1627984879.9,
+                    feedback=None,
+                    used_chunks=None,
                 )
             },
             last_message_id="x",
@@ -189,6 +190,25 @@ class TestConversationRepository(unittest.TestCase):
         )
         self.assertEqual(found_conversation.title, "Updated title")
 
+        # Test give a feedback
+        self.assertIsNone(found_conversation.message_map["a"].feedback)
+        response = update_feedback(
+            user_id="user",
+            conversation_id="1",
+            message_id="a",
+            feedback=FeedbackModel(
+                thumbs_up=True, category="Good", comment="The response is pretty good."
+            ),
+        )
+        found_conversation = find_conversation_by_id(
+            user_id="user", conversation_id="1"
+        )
+        feedback = found_conversation.message_map["a"].feedback
+        self.assertIsNotNone(feedback)
+        self.assertEqual(feedback.thumbs_up, True)  # type: ignore
+        self.assertEqual(feedback.category, "Good")  # type: ignore
+        self.assertEqual(feedback.comment, "The response is pretty good.")  # type: ignore
+
         # Test deleting conversation by id
         delete_conversation_by_id(user_id="user", conversation_id="1")
         with self.assertRaises(RecordNotFoundError):
@@ -217,6 +237,8 @@ class TestConversationRepository(unittest.TestCase):
                 children=[],
                 parent=None,
                 create_time=1627984879.9,
+                feedback=None,
+                used_chunks=None,
             )
             for i in range(10)  # Create 10 large messages
         }
@@ -297,6 +319,8 @@ class TestConversationBotRepository(unittest.TestCase):
                     children=["x", "y"],
                     parent="z",
                     create_time=1627984879.9,
+                    feedback=None,
+                    used_chunks=None,
                 )
             },
             last_message_id="x",
@@ -324,6 +348,8 @@ class TestConversationBotRepository(unittest.TestCase):
                     children=["x", "y"],
                     parent="z",
                     create_time=1627984879.9,
+                    feedback=None,
+                    used_chunks=None,
                 )
             },
             last_message_id="x",
@@ -342,6 +368,17 @@ class TestConversationBotRepository(unittest.TestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/"],
@@ -354,6 +391,7 @@ class TestConversationBotRepository(unittest.TestCase):
             published_api_codebuild_id="",
             published_api_datetime=0,
             published_api_stack_name="",
+            display_retrieved_chunks=True,
         )
         bot2 = BotModel(
             id="2",
@@ -368,6 +406,17 @@ class TestConversationBotRepository(unittest.TestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/"],
@@ -380,6 +429,7 @@ class TestConversationBotRepository(unittest.TestCase):
             published_api_codebuild_id="",
             published_api_datetime=0,
             published_api_stack_name="",
+            display_retrieved_chunks=True,
         )
 
         store_conversation("user", conversation1)

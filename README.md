@@ -2,14 +2,8 @@
 
 ![](https://github.com/aws-samples/bedrock-claude-chat/actions/workflows/cdk.yml/badge.svg)
 
-> [!Tip]
-> 🔔**Claude3 Opus supported.** As of 04/17/2024, Bedrock only supports the `us-west-2` region. In this repository, Bedrock uses the `us-east-1` region by default. Therefore, if you plan to use it, please change the value of `bedrockRegion` before deployment. For more details, please refer [here](#deploy-using-cdk).
-
-> [!Info]
-> We'd like to hear your feedback to implement bot creation permission management feature. The plan is to grant permissions to individual users through the admin panel, but this may increase operational overhead for existing users. [Please take the survey](https://github.com/aws-samples/bedrock-claude-chat/issues/161#issuecomment-2058194533).
-
-> [!Warning]
-> The current version (`v0.4.x`) has no compatibility with the previous version (~`v0.3.0`) due to changes in the DynamoDB table schema. **Please note that the UPDATE (i.e. `cdk deploy`) FROM PREVIOUS VERSION TO `v0.4.x` WILL DESTROY ALL OF THE EXISTING CONVERSATIONS.**
+> [!Caution]
+> The `main` branch is no longer maintained and is equivalent to the `v0` version. Please consider migrating to the latest [`v1`](https://github.com/aws-samples/bedrock-claude-chat/tree/v1) branch which is now the default branch.
 
 This repository is a sample chatbot using the Anthropic company's LLM [Claude](https://www.anthropic.com/), one of the foundational models provided by [Amazon Bedrock](https://aws.amazon.com/bedrock/) for generative AI.
 
@@ -42,6 +36,7 @@ Analyze usage for each user / bot on administrator dashboard. [detail](./docs/AD
 - Français 💬
 - Deutsch 💬
 - Español 💬
+- Italian 💬
 
 ## 🚀 Super-easy Deployment
 
@@ -64,7 +59,23 @@ chmod +x bin.sh
 ./bin.sh
 ```
 
-- After about 30 minutes, you will get the following output, which you can access from your browser
+### Optional Parameters
+
+You can now specify the following parameters during deployment to enhance security and customization:
+
+- **--disable-self-register**: Disable self-registration (default: enabled). If this flag is set, you will need to create all users on cognito and it will not allow users to self register their accounts.
+- **--ipv4-ranges**: Comma-separated list of allowed IPv4 ranges. (default: allow all ipv4 addresses)
+- **--ipv6-ranges**: Comma-separated list of allowed IPv6 ranges. (default: allow all ipv6 addresses)
+- **--allowed-signup-email-domains**: Comma-separated list of allowed email domains for sign-up. (default: no domain restriction)
+- **--region**: Define the region where bedrock is available. (default: us-east-1)
+
+#### Example command with parameters:
+
+```sh
+./bin.sh --disable-self-register --ipv4-ranges "192.0.2.0/25,192.0.2.128/25" --ipv6-ranges "2001:db8:1:2::/64,2001:db8:1:3::/64" --allowed-signup-email-domains "example.com,anotherexample.com" --region "us-west-2"
+```
+
+- After about 35 minutes, you will get the following output, which you can access from your browser
 
 ```
 Frontend URL: https://xxxxxxxxx.cloudfront.net
@@ -75,7 +86,7 @@ Frontend URL: https://xxxxxxxxx.cloudfront.net
 The sign-up screen will appear as shown above, where you can register your email and log in.
 
 > [!Important]
-> This deployment method allows anyone with the URL to sign up. For production use, we strongly recommend adding IP address restrictions or disabling self-signup to mitigate security risks. To set up, [Deploy using CDK](#deploy-using-cdk) for IP address restrictions or [Disable self sign up](#disable-self-sign-up).
+> This deployment method allows anyone with the URL to sign up if optional parameters are not configured. For production use, we strongly recommend adding IP address restrictions and disabling self-signup to mitigate security risks (Defining the `allowed-signup-email-domains` to allow only your emails from your comapny domain to be able to sing-up to restrict the users). For ip address restriction use both `ipv4-ranges` and `ipv6-ranges` and to disable self-signup use `disable-self-register` when executing `./bin`.
 
 ## Architecture
 
@@ -93,51 +104,6 @@ It's an architecture built on AWS managed services, eliminating the need for inf
 - [Amazon Athena](https://aws.amazon.com/athena/): Query service to analyze S3 bucket
 
 ![](docs/imgs/arch.png)
-
-## Features and Roadmap
-
-<details>
-<summary>Basic chat features</summary>
-
-- [x] Authentication (Sign-up, Sign-in)
-- [x] Creation, storage, and deletion of conversations
-- [x] Copying of chatbot replies
-- [x] Automatic subject suggestion for conversations
-- [x] Syntax highlighting for code
-- [x] Rendering of Markdown
-- [x] Streaming Response
-- [x] IP address restriction
-- [x] Edit message & re-send
-- [x] I18n
-- [x] Model switch
-</details>
-
-<details>
-<summary>Customized bot features</summary>
-
-- [x] Customized bot creation
-- [x] Customized bot sharing
-- [x] Publish as stand-alone API
-</details>
-
-<details>
-<summary>RAG features</summary>
-
-- [x] Web (html)
-- [x] Text data (txt, csv, markdown and etc)
-- [x] PDF
-- [x] Microsoft office files (pptx, docx, xlsx)
-- [x] Youtube transcript
-- [ ] Import from S3 bucket
-- [ ] Import external existing Kendra / OpenSearch / KnowledgeBase
-</details>
-
-<details>
-<summary>Admin features</summary>
-
-- [x] Tracking usage fees per bot
-- [x] List all published bot
-</details>
 
 ## Deploy using CDK
 
@@ -201,13 +167,24 @@ BedrockChatStack.FrontendURL = https://xxxxx.cloudfront.net
 
 ## Others
 
-### Configure text generation
+### Configure Mistral models support
 
-Edit [config.py](./backend/app/config.py) and run `cdk deploy`.
+Update `enableMistral` to `true` in [cdk.json](./cdk/cdk.json), and run `cdk deploy`.
+
+```json
+...
+  "enableMistral": true,
+```
+
+> [!Important]
+> This project focus on Anthropic Claude models, the Mistral models are limited supported. For example, prompt examples are based on Claude models. This is a Mistral-only option, once you toggled to enable Mistral models, you can only use Mistral models for all the chat features, NOT both Claude and Mistral models.
+
+### Configure default text generation
+
+Users can adjust the [text generation parameters](https://docs.anthropic.com/claude/reference/complete_post) from the custom bot creation screen. If the bot is not used, the default parameters set in [config.py](./backend/app/config.py) will be used.
 
 ```py
-# See: https://docs.anthropic.com/claude/reference/complete_post
-GENERATION_CONFIG = {
+DEFAULT_GENERATION_CONFIG = {
     "max_tokens": 2000,
     "top_k": 250,
     "top_p": 0.999,
@@ -252,24 +229,7 @@ This asset automatically detects the language using [i18next-browser-languageDet
 
 ### Disable self sign up
 
-This sample has self sign up enabled by default. To disable self sign up, open [auth.ts](./cdk/lib/constructs/auth.ts) and switch `selfSignUpEnabled` as `false`, then re-deploy.
-
-```ts
-const userPool = new UserPool(this, "UserPool", {
-  passwordPolicy: {
-    requireUppercase: true,
-    requireSymbols: true,
-    requireDigits: true,
-    minLength: 8,
-  },
-  // Set to false
-  selfSignUpEnabled: false,
-  signInAliases: {
-    username: false,
-    email: true,
-  },
-});
-```
+This sample has self sign up enabled by default. To disable self sign up, open [cdk.json](./cdk/cdk.json) and switch `selfSignUpEnabled` as `false`. If you configure [external identity provider](#external-identity-provider), the value will be ignored and automatically disabled.
 
 ### Restrict Domains for Sign-Up Email Addresses
 
@@ -306,7 +266,12 @@ See [here](./docs/RAG.md).
 
 - [Takehiro Suzuki](https://github.com/statefb)
 - [Yusuke Wada](https://github.com/wadabee)
+- [Yukinobu Mine](https://github.com/Yukinobu-Mine)
+
+## Contributors
+
+[![bedrock claude chat contributors](https://contrib.rocks/image?repo=aws-samples/bedrock-claude-chat&max=1000)](https://github.com/aws-samples/bedrock-claude-chat/graphs/contributors)
 
 ## License
 
-This library is licensed under the MIT-0 License. See the LICENSE file.
+This library is licensed under the MIT-0 License. See [the LICENSE file](./LICENSE).

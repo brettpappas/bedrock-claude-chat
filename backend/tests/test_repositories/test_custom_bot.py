@@ -4,8 +4,6 @@ import unittest
 sys.path.append(".")
 
 from app.config import DEFAULT_EMBEDDING_CONFIG
-
-
 from app.repositories.custom_bot import (
     delete_alias_by_id,
     delete_bot_by_id,
@@ -27,6 +25,8 @@ from app.repositories.models.custom_bot import (
     BotModel,
     EmbeddingParamsModel,
     KnowledgeModel,
+    GenerationParamsModel,
+    SearchParamsModel,
 )
 from app.usecases.bot import fetch_all_bots_by_user_id
 
@@ -46,6 +46,17 @@ class TestCustomBotRepository(unittest.TestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/"],
@@ -58,6 +69,7 @@ class TestCustomBotRepository(unittest.TestCase):
             published_api_stack_name="TestApiStack",
             published_api_datetime=1627984879,
             published_api_codebuild_id="TestCodeBuildId",
+            display_retrieved_chunks=True,
         )
         store_bot("user1", bot)
 
@@ -77,6 +89,16 @@ class TestCustomBotRepository(unittest.TestCase):
             bot.embedding_params.chunk_overlap,
             DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
         )
+
+        self.assertEqual(
+            bot.embedding_params.enable_partition_pdf,
+            DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+        )
+        self.assertEqual(bot.generation_params.max_tokens, 2000)
+        self.assertEqual(bot.generation_params.top_k, 250)
+        self.assertEqual(bot.generation_params.top_p, 0.999)
+        self.assertEqual(bot.generation_params.temperature, 0.6)
+
         self.assertEqual(bot.knowledge.source_urls, ["https://aws.amazon.com/"])
         self.assertEqual(bot.knowledge.sitemap_urls, ["https://aws.amazon.sitemap.xml"])
         self.assertEqual(bot.knowledge.filenames, ["test.txt"])
@@ -116,6 +138,17 @@ class TestCustomBotRepository(unittest.TestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/"],
@@ -128,6 +161,7 @@ class TestCustomBotRepository(unittest.TestCase):
             published_api_stack_name=None,
             published_api_datetime=None,
             published_api_codebuild_id=None,
+            display_retrieved_chunks=True,
         )
         store_bot("user1", bot)
         update_bot_last_used_time("user1", "1")
@@ -135,6 +169,7 @@ class TestCustomBotRepository(unittest.TestCase):
         bot = find_private_bot_by_id("user1", "1")
         self.assertIsNotNone(bot.last_used_time)
         self.assertNotEqual(bot.last_used_time, 1627984879.9)
+        self.assertEqual(bot.display_retrieved_chunks, True)
 
         delete_bot_by_id("user1", "1")
 
@@ -152,6 +187,17 @@ class TestCustomBotRepository(unittest.TestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/jp"],
@@ -164,6 +210,7 @@ class TestCustomBotRepository(unittest.TestCase):
             published_api_stack_name=None,
             published_api_datetime=None,
             published_api_codebuild_id=None,
+            display_retrieved_chunks=True,
         )
         store_bot("user1", bot)
         update_bot_publication("user1", "1", "api1", "build1")
@@ -197,6 +244,17 @@ class TestCustomBotRepository(unittest.TestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/jp"],
@@ -209,6 +267,7 @@ class TestCustomBotRepository(unittest.TestCase):
             published_api_stack_name=None,
             published_api_datetime=None,
             published_api_codebuild_id=None,
+            display_retrieved_chunks=True,
         )
         store_bot("user1", bot)
         update_bot(
@@ -218,8 +277,17 @@ class TestCustomBotRepository(unittest.TestCase):
             description="Updated Description",
             instruction="Updated Instruction",
             embedding_params=EmbeddingParamsModel(
-                chunk_size=500,
-                chunk_overlap=100,
+                chunk_size=500, chunk_overlap=100, enable_partition_pdf=False
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2500,
+                top_k=200,
+                top_p=0.99,
+                temperature=0.2,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://updated.com/"],
@@ -228,6 +296,7 @@ class TestCustomBotRepository(unittest.TestCase):
             ),
             sync_status="RUNNING",
             sync_status_reason="reason",
+            display_retrieved_chunks=False,
         )
 
         bot = find_private_bot_by_id("user1", "1")
@@ -236,11 +305,20 @@ class TestCustomBotRepository(unittest.TestCase):
         self.assertEqual(bot.instruction, "Updated Instruction")
         self.assertEqual(bot.embedding_params.chunk_size, 500)
         self.assertEqual(bot.embedding_params.chunk_overlap, 100)
+
+        self.assertEqual(bot.embedding_params.enable_partition_pdf, False)
+
+        self.assertEqual(bot.generation_params.max_tokens, 2500)
+        self.assertEqual(bot.generation_params.top_k, 200)
+        self.assertEqual(bot.generation_params.top_p, 0.99)
+        self.assertEqual(bot.generation_params.temperature, 0.2)
+
         self.assertEqual(bot.knowledge.source_urls, ["https://updated.com/"])
         self.assertEqual(bot.knowledge.sitemap_urls, ["https://updated.xml"])
         self.assertEqual(bot.knowledge.filenames, ["updated.txt"])
         self.assertEqual(bot.sync_status, "RUNNING")
         self.assertEqual(bot.sync_status_reason, "reason")
+        self.assertEqual(bot.display_retrieved_chunks, False)
 
         delete_bot_by_id("user1", "1")
 
@@ -261,6 +339,17 @@ class TestFindAllBots(unittest.IsolatedAsyncioTestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/"],
@@ -273,6 +362,7 @@ class TestFindAllBots(unittest.IsolatedAsyncioTestCase):
             published_api_stack_name=None,
             published_api_datetime=None,
             published_api_codebuild_id=None,
+            display_retrieved_chunks=True,
         )
         bot2 = BotModel(
             id="2",
@@ -288,6 +378,17 @@ class TestFindAllBots(unittest.IsolatedAsyncioTestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/"],
@@ -300,6 +401,7 @@ class TestFindAllBots(unittest.IsolatedAsyncioTestCase):
             published_api_stack_name=None,
             published_api_datetime=None,
             published_api_codebuild_id=None,
+            display_retrieved_chunks=True,
         )
         bot3 = BotModel(
             id="3",
@@ -315,6 +417,17 @@ class TestFindAllBots(unittest.IsolatedAsyncioTestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/"],
@@ -327,6 +440,7 @@ class TestFindAllBots(unittest.IsolatedAsyncioTestCase):
             published_api_stack_name=None,
             published_api_datetime=None,
             published_api_codebuild_id=None,
+            display_retrieved_chunks=True,
         )
         bot4 = BotModel(
             id="4",
@@ -342,6 +456,17 @@ class TestFindAllBots(unittest.IsolatedAsyncioTestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/"],
@@ -354,6 +479,7 @@ class TestFindAllBots(unittest.IsolatedAsyncioTestCase):
             published_api_stack_name=None,
             published_api_datetime=None,
             published_api_codebuild_id=None,
+            display_retrieved_chunks=True,
         )
         public_bot1 = BotModel(
             id="public1",
@@ -368,6 +494,17 @@ class TestFindAllBots(unittest.IsolatedAsyncioTestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/"],
@@ -380,6 +517,7 @@ class TestFindAllBots(unittest.IsolatedAsyncioTestCase):
             published_api_stack_name=None,
             published_api_datetime=None,
             published_api_codebuild_id=None,
+            display_retrieved_chunks=True,
         )
         public_bot2 = BotModel(
             id="public2",
@@ -394,6 +532,17 @@ class TestFindAllBots(unittest.IsolatedAsyncioTestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/"],
@@ -406,6 +555,7 @@ class TestFindAllBots(unittest.IsolatedAsyncioTestCase):
             published_api_stack_name=None,
             published_api_datetime=None,
             published_api_codebuild_id=None,
+            display_retrieved_chunks=True,
         )
         alias1 = BotAliasModel(
             id="alias1",
@@ -492,6 +642,17 @@ class TestUpdateBotVisibility(unittest.TestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/"],
@@ -504,6 +665,7 @@ class TestUpdateBotVisibility(unittest.TestCase):
             published_api_stack_name=None,
             published_api_datetime=None,
             published_api_codebuild_id=None,
+            display_retrieved_chunks=True,
         )
         bot2 = BotModel(
             id="2",
@@ -518,6 +680,17 @@ class TestUpdateBotVisibility(unittest.TestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/"],
@@ -530,6 +703,7 @@ class TestUpdateBotVisibility(unittest.TestCase):
             published_api_stack_name=None,
             published_api_datetime=None,
             published_api_codebuild_id=None,
+            display_retrieved_chunks=True,
         )
         public1 = BotModel(
             id="public1",
@@ -544,6 +718,17 @@ class TestUpdateBotVisibility(unittest.TestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(
                 source_urls=["https://aws.amazon.com/"],
@@ -556,6 +741,7 @@ class TestUpdateBotVisibility(unittest.TestCase):
             published_api_stack_name=None,
             published_api_datetime=None,
             published_api_codebuild_id=None,
+            display_retrieved_chunks=True,
         )
         alias1 = BotAliasModel(
             id="4",
@@ -591,10 +777,22 @@ class TestUpdateBotVisibility(unittest.TestCase):
             embedding_params=EmbeddingParamsModel(
                 chunk_size=DEFAULT_EMBEDDING_CONFIG["chunk_size"],
                 chunk_overlap=DEFAULT_EMBEDDING_CONFIG["chunk_overlap"],
+                enable_partition_pdf=DEFAULT_EMBEDDING_CONFIG["enable_partition_pdf"],
+            ),
+            generation_params=GenerationParamsModel(
+                max_tokens=2000,
+                top_k=250,
+                top_p=0.999,
+                temperature=0.6,
+                stop_sequences=["Human: ", "Assistant: "],
+            ),
+            search_params=SearchParamsModel(
+                max_results=20,
             ),
             knowledge=KnowledgeModel(source_urls=[], sitemap_urls=[], filenames=[]),
             sync_status="RUNNING",
             sync_status_reason="",
+            display_retrieved_chunks=True,
         )
         bots = fetch_all_bots_by_user_id("user1", limit=3)
         self.assertEqual(len(bots), 3)
